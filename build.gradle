@@ -29,6 +29,7 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-aop'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.github.hakky54:logcaptor:2.12.0'
     // This version of mockito is clashing with mockito version in spring-boot-starter-test
     //testImplementation 'org.mockito:mockito-core:2.28.2'
 }

@@ -7,6 +7,8 @@ import com.bayzdelivery.repositories.DeliveryRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -176,5 +179,41 @@ class DeliveryServiceImplTest {
         when(deliveryRepository.isAgentAlreadyDelivering(anyLong(), any(Instant.class))).thenReturn(null);
         actualResult = deliveryService.isAgentAlreadyDelivering(delivery01);
         assertFalse(actualResult);
+    }
+
+    @Test
+    void testGetDelayedDelivery() {
+        Person deliveryAgent = new Person();
+        deliveryAgent.setId(1L);
+        deliveryAgent.setEmail("abc@xyz.com");
+        deliveryAgent.setName("Agent1");
+        deliveryAgent.setRole(UserRole.DELIVERY_AGENT);
+        deliveryAgent.setRegistrationNumber("100001");
+
+        Person customer = new Person();
+        customer.setId(2L);
+        customer.setEmail("xyz@abc.com");
+        customer.setName("User1");
+        customer.setRole(UserRole.CUSTOMER);
+        customer.setRegistrationNumber("100002");
+
+        Delivery delivery01 = new Delivery();
+        delivery01.setId(2L);
+        delivery01.setDistance(new BigDecimal("10.56"));
+        delivery01.setDeliveryMan(deliveryAgent);
+        delivery01.setCustomer(customer);
+        delivery01.setPrice(new BigDecimal("15.85"));
+        delivery01.setStartTime(Instant.now());
+
+        when(deliveryRepository.findDelayedDelivery(anyInt())).thenReturn(null);
+        List<Long> actualResult = deliveryService.getDelayedDelivery(45);
+        assertNull(actualResult);
+
+        List<Long> idList = new ArrayList<>();
+        idList.add(2L);
+        when(deliveryRepository.findDelayedDelivery(anyInt())).thenReturn(idList);
+        actualResult = deliveryService.getDelayedDelivery(45);
+        assertEquals(1, actualResult.size());
+        assertEquals(2L, actualResult.get(0));
     }
 }

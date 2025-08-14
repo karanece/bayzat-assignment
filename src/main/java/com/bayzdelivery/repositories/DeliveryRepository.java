@@ -2,6 +2,7 @@ package com.bayzdelivery.repositories;
 
 import com.bayzdelivery.model.Delivery;
 import java.time.Instant;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,5 +24,14 @@ public interface DeliveryRepository extends CrudRepository<Delivery, Long>,
                     "   AND  d.end_time IS NULL ")
     Long isAgentAlreadyDelivering(@Param("delivery_man_id") final Long deliveryManId,
                                   @Param("start_time") final Instant startTime);
+
+    @Query(name = "findDelayedDelivery",
+            nativeQuery = true,
+            value = " SELECT  d.id " +
+                    "   FROM  Delivery d " +
+                    "  WHERE  EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - d.start_time) / 60 >= :interval " +
+                    "    AND  d.end_time IS NULL"
+    )
+    List<Long> findDelayedDelivery(@Param("interval") final Integer interval);
 
 }
