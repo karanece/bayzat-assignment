@@ -1,6 +1,8 @@
 package com.bayzdelivery.service;
 
 import com.bayzdelivery.model.Delivery;
+import com.bayzdelivery.model.DeliveryPerson;
+import java.time.Instant;
 import java.util.List;
 
 public interface DeliveryService {
@@ -12,4 +14,8 @@ public interface DeliveryService {
   Boolean isAgentAlreadyDelivering(final Delivery delivery);
 
   List<Long> getDelayedDelivery(final Integer duration);
+
+  List<DeliveryPerson> findTopKAgentsWithMostCommission(final Integer limit,
+                                                        final String startTime,
+                                                        final String endTime);
 }

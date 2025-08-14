@@ -1,6 +1,11 @@
 package com.bayzdelivery.service;
 
+import com.bayzdelivery.model.DeliveryPerson;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +56,17 @@ public class DeliveryServiceImpl implements DeliveryService {
     return deliveryRepository.findDelayedDelivery(duration);
   }
 
+  // Find top `k` high commission earning delivery agents
+  public List<DeliveryPerson> findTopKAgentsWithMostCommission(final Integer limit,
+                                                               final String startTime,
+                                                               final String endTime) {
+
+    Instant instantStartTime = stringToInstantConvertor(startTime);
+    Instant instantEndTime = stringToInstantConvertor(endTime);
+
+    return deliveryRepository.findTopKAgentsWithMostCommission(limit, instantStartTime, instantEndTime);
+  }
+
   //Visible for testing
   Delivery setCommission(Delivery delivery) {
     if (delivery.getCommission() != null && !delivery.getCommission().equals(new BigDecimal("0.0"))) {
@@ -63,6 +79,17 @@ public class DeliveryServiceImpl implements DeliveryService {
     delivery.setCommission(commission);
 
     return delivery;
+  }
+
+  Instant stringToInstantConvertor(final String instantTimeString) {
+
+    try {
+      return Instant.parse(instantTimeString);
+    } catch (final DateTimeParseException ex) {
+      LOGGER.error("The give time is not in correct format:- yyyy-MM-dd HH:mm:ss.SSSSSS Z , {}", instantTimeString);
+    }
+
+    return null;
   }
 
 }

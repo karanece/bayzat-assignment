@@ -1,7 +1,9 @@
 package com.bayzdelivery.repositories;
 
 import com.bayzdelivery.model.Delivery;
+import com.bayzdelivery.model.DeliveryPerson;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,5 +35,28 @@ public interface DeliveryRepository extends CrudRepository<Delivery, Long>,
                     "    AND  d.end_time IS NULL"
     )
     List<Long> findDelayedDelivery(@Param("interval") final Integer interval);
+
+    @Query(name = "findTopKAgentsWithMostCommission",
+            nativeQuery = true,
+            value = " SELECT  p.id AS id" +
+                    "        ,p.name AS name " +
+                    "        ,d.commission AS commission " +
+                    "        ,(SELECT  ROUND(AVG(d1.commission), 4) " +
+                    "            FROM  Delivery d1 " +
+                    "           WHERE  d1.start_time >= :start_time " +
+                    "             AND  d1.end_time <= :end_time) AS avg_commission " +
+                    "        ,d.start_time AS start_time " +
+                    "        ,d.end_time AS end_time " +
+                    "   FROM  Person p " +
+                    "        ,Delivery d " +
+                    "  WHERE  d.delivery_man_id = p.id " +
+                    "    AND  d.start_time >= :start_time " +
+                    "    AND  d.end_time <= :end_time " +
+                    "  ORDER " +
+                    "     BY  d.commission DESC " +
+                    "  LIMIT  :limit ")
+    List<DeliveryPerson> findTopKAgentsWithMostCommission(@Param("limit") final Integer limit,
+                                                          @Param("start_time") final Instant startTime,
+                                                          @Param("end_time") final Instant endTime);
 
 }
