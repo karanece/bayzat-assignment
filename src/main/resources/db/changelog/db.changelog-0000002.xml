@@ -1,0 +1,12 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="bayzdelivery" id="2025081301_alter_delivery_table">
+        <addColumn tableName="delivery">
+            <column name="commission" type="DECIMAL(10, 4)" />
+        </addColumn>
+        <modifyDataType tableName="delivery" columnName="price" newDataType="DECIMAL(10, 4)" />
+        <modifyDataType tableName="delivery" columnName="distance" newDataType="NUMERIC(10, 2)" />
+        <modifyDataType tableName="delivery" columnName="start_time" newDataType="TIMESTAMPTZ" />
+        <modifyDataType tableName="delivery" columnName="end_time" newDataType="TIMESTAMPTZ" />
+    </changeSet>
+</databaseChangeLog>
