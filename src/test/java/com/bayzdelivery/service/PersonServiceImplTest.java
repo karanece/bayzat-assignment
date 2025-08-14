@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +50,7 @@ class PersonServiceImplTest {
 
         when(personRepository.findAll()).thenReturn(personList);
         List<Person> actualPersonList = personService.getAll();
-        assertEquals(actualPersonList.size(), 2);
+        assertEquals(2, actualPersonList.size());
     }
 
     @Test
@@ -60,17 +62,17 @@ class PersonServiceImplTest {
         customer.setRole(UserRole.CUSTOMER);
         customer.setRegistrationNumber("100002");
 
-        when(personRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+        when(personRepository.findById(anyLong())).thenReturn(Optional.of(customer));
         Person actualPerson = personService.findById(customer.getId());
 
         assertNotNull(actualPerson);
-        assertEquals(actualPerson.getId(), customer.getId());
-        assertEquals(actualPerson.getName(), customer.getName());
-        assertEquals(actualPerson.getEmail(), customer.getEmail());
-        assertEquals(actualPerson.getRegistrationNumber(), customer.getRegistrationNumber());
-        assertEquals(actualPerson.getRole(), customer.getRole());
+        assertEquals(customer.getId(), actualPerson.getId());
+        assertEquals(customer.getName(), actualPerson.getName());
+        assertEquals(customer.getEmail(), actualPerson.getEmail());
+        assertEquals(customer.getRegistrationNumber(), actualPerson.getRegistrationNumber());
+        assertEquals(customer.getRole(), actualPerson.getRole());
 
-        when(personRepository.findById(customer.getId())).thenReturn(Optional.empty());
+        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
         actualPerson = personService.findById(customer.getId());
 
         assertNull(actualPerson);
@@ -92,14 +94,14 @@ class PersonServiceImplTest {
         customer.setRole(UserRole.CUSTOMER);
         customer.setRegistrationNumber("100002");
 
-        when(personRepository.save(deliveryAgent)).thenReturn(deliveryAgent);
+        when(personRepository.save(any(Person.class))).thenReturn(deliveryAgent);
         Person actualPerson = personService.save(deliveryAgent);
-        assertEquals(actualPerson.getId(), deliveryAgent.getId());
-        assertEquals(actualPerson.getRole(), deliveryAgent.getRole());
+        assertEquals(deliveryAgent.getId(), actualPerson.getId());
+        assertEquals(deliveryAgent.getRole(), actualPerson.getRole());
 
-        when(personRepository.save(customer)).thenReturn(customer);
+        when(personRepository.save(any(Person.class))).thenReturn(customer);
         actualPerson = personService.save(customer);
-        assertEquals(actualPerson.getId(), customer.getId());
-        assertEquals(actualPerson.getRole(), customer.getRole());
+        assertEquals(customer.getId(), actualPerson.getId());
+        assertEquals(customer.getRole(), actualPerson.getRole());
     }
 }

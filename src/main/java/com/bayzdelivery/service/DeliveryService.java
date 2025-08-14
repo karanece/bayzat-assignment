@@ -4,7 +4,9 @@ import com.bayzdelivery.model.Delivery;
 
 public interface DeliveryService {
 
-  public Delivery save(Delivery delivery);
+  Delivery save(Delivery delivery);
 
-  public Delivery findById(Long deliveryId);
+  Delivery findById(Long deliveryId);
+
+  Boolean isAgentAlreadyDelivering(final Delivery delivery);
 }

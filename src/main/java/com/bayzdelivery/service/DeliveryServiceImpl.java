@@ -31,6 +31,20 @@ public class DeliveryServiceImpl implements DeliveryService {
     return optionalDelivery.orElse(null);
   }
 
+  public Boolean isAgentAlreadyDelivering(final Delivery delivery) {
+    if (delivery.getDeliveryMan() == null) {
+      return Boolean.FALSE;
+    }
+
+    Long id = deliveryRepository.isAgentAlreadyDelivering(delivery.getDeliveryMan().getId(), delivery.getStartTime());
+
+    if (id == null) {
+      return Boolean.FALSE;
+    }
+
+    return Boolean.TRUE;
+  }
+
   //Visible for testing
   Delivery setCommission(Delivery delivery) {
     if (delivery.getCommission() != null && !delivery.getCommission().equals(new BigDecimal("0.0"))) {

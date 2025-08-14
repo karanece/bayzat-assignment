@@ -15,8 +15,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,14 +58,14 @@ class DeliveryServiceImplTest {
         delivery.setStartTime(Instant.now());
         delivery.setEndTime(Instant.now().plus(15, ChronoUnit.MINUTES));
 
-        when(deliveryRepository.findById(delivery.getId())).thenReturn(Optional.of(delivery));
+        when(deliveryRepository.findById(anyLong())).thenReturn(Optional.of(delivery));
         Delivery actualDelivery = deliveryService.findById(delivery.getId());
 
         assertNotNull(actualDelivery);
         assertEquals(delivery.getId(), actualDelivery.getId());
         assertEquals(delivery.getCommission(), actualDelivery.getCommission());
 
-        when(deliveryRepository.findById(delivery.getId())).thenReturn(Optional.empty());
+        when(deliveryRepository.findById(anyLong())).thenReturn(Optional.empty());
         actualDelivery = deliveryService.findById(delivery.getId());
 
         assertNull(actualDelivery);
@@ -102,7 +106,7 @@ class DeliveryServiceImplTest {
         delivery02.setStartTime(delivery01.getStartTime());
         delivery02.setEndTime(delivery01.getEndTime());
 
-        when(deliveryRepository.save(delivery01)).thenReturn(delivery02);
+        when(deliveryRepository.save(any(Delivery.class))).thenReturn(delivery02);
 
         Delivery actualDelivery = deliveryService.save(delivery01);
         assertEquals(delivery02.getCommission(), actualDelivery.getCommission());
@@ -135,5 +139,42 @@ class DeliveryServiceImplTest {
 
         Delivery actualDelivery = deliveryService.setCommission(delivery01);
         assertEquals(new BigDecimal("6.0725"), actualDelivery.getCommission());
+    }
+
+    @Test
+    void testIsAgentAlreadyDelivering() {
+        Person deliveryAgent = new Person();
+        deliveryAgent.setId(1L);
+        deliveryAgent.setEmail("abc@xyz.com");
+        deliveryAgent.setName("Agent1");
+        deliveryAgent.setRole(UserRole.DELIVERY_AGENT);
+        deliveryAgent.setRegistrationNumber("100001");
+
+        Person customer = new Person();
+        customer.setId(2L);
+        customer.setEmail("xyz@abc.com");
+        customer.setName("User1");
+        customer.setRole(UserRole.CUSTOMER);
+        customer.setRegistrationNumber("100002");
+
+        Delivery delivery01 = new Delivery();
+        delivery01.setId(2L);
+        delivery01.setDistance(new BigDecimal("10.56"));
+        delivery01.setCustomer(customer);
+        delivery01.setPrice(new BigDecimal("15.85"));
+        delivery01.setStartTime(Instant.now());
+
+        Boolean actualResult = deliveryService.isAgentAlreadyDelivering(delivery01);
+        assertFalse(actualResult);
+
+        delivery01.setDeliveryMan(deliveryAgent);
+
+        when(deliveryRepository.isAgentAlreadyDelivering(anyLong(), any(Instant.class))).thenReturn(delivery01.getId());
+        actualResult = deliveryService.isAgentAlreadyDelivering(delivery01);
+        assertTrue(actualResult);
+
+        when(deliveryRepository.isAgentAlreadyDelivering(anyLong(), any(Instant.class))).thenReturn(null);
+        actualResult = deliveryService.isAgentAlreadyDelivering(delivery01);
+        assertFalse(actualResult);
     }
 }
